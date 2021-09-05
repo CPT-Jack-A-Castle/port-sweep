@@ -1,0 +1,25 @@
+#!/bin/bash
+#----------
+GREEN="\e[32m"
+YELLOW="\e[33m"
+ENDCOLOR="\e[0m"
+#----------
+echo -e "Usage: crumble [OPTION]... [ARGS]..."
+echo -e "Simulate HTTP DDoS Attack on Directory Traversal.\n"
+echo -e "Required to be use virtual environment for library dependencies\n"
+echo -e "  ${GREEN}-u${ENDCOLOR}\t a full-path of the url with http/https prefix"
+echo -e "  ${GREEN}-c${ENDCOLOR}\t number of total connections to be sended"
+echo -e "  ${GREEN}-s${ENDCOLOR}\t spawn rate of connections for each interval"
+echo -e "  ${GREEN}-t${ENDCOLOR}\t time of interval for each connections. counted in seconds format"
+echo -e "  ${GREEN}-f ${YELLOW}**${ENDCOLOR}\t file contains of known directory listing. scrapping all by default\n"
+echo -e "Examples:"
+echo -e "  bash crumble ${GREEN}-u${ENDCOLOR} http://api.example.com ${GREEN}-c${ENDCOLOR} 1000 ${GREEN}-s${ENDCOLOR} 10 ${GREEN}-t${ENDCOLOR} 0.05"
+echo -e "  bash crumble ${GREEN}-u${ENDCOLOR} http://api.example.com ${GREEN}-c${ENDCOLOR} 5200 ${GREEN}-s${ENDCOLOR} 500 ${GREEN}-t${ENDCOLOR} 1.5 ${GREEN}-f${ENDCOLOR} list.txt\n  --"
+echo -e "  content of ${YELLOW}list.txt${ENDCOLOR}:"
+echo -e "  ${GREEN}1${ENDCOLOR} | /"
+echo -e "  ${GREEN}2${ENDCOLOR} | /blog"
+echo -e "  ${GREEN}3${ENDCOLOR} | /form"
+echo -e "  ${GREEN}4${ENDCOLOR} | /privacy-policy\n"
+echo -e "Full documentation at https://github.com/hotpotcookie/crumble-attack"
+echo -e "Open issues and report bugs to https://github.com/hotpotcookie/crumble-attack/issues"
+	
