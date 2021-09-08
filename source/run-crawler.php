@@ -5,9 +5,11 @@
 	------*/
 	$start = $argv[1];
 	function crawl($url) {
+		$options = array('http'=>array('method'=>"GET",'headers'=>"User-Agent: Crawler/0.1\n"));
+		$context = stream_context_create($options);
 		$doc = new DOMDocument();
 		$port = ""; ## ":".parse_url($url)["port"]
-		@$doc->loadHTML(file_get_contents($url));
+		@$doc->loadHTML(file_get_contents($url,false,$context));
 
 		$linkedlist = $doc->getElementsByTagName("a");
 		foreach ($linkedlist as $link) {
