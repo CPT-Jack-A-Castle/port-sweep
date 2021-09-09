@@ -23,7 +23,7 @@ while getopts ":u:c:s:t:f:h" opt; do
 			bash source/run-usage.sh;;			
 	esac
 done
-
+#----------
 if [[ -z "${u}" || -z "${c}" || -z "${s}" || -z "${t}" ]]; then
 	if [[ "$h" != "active" ]]; then
 		bash source/run-usage.sh
@@ -35,5 +35,5 @@ if [[ -s "$f" ]]; then
 else
 	echo "use web crawler"
 fi
-
+#----------
 echo "$u $c $s $t $f"
