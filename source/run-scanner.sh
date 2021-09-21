@@ -21,7 +21,7 @@ trap trapexit SIGINT
 #----------
 check_curl=$(dpkg-query -W -f='${Status}' curl 2>/dev/null | grep -c "ok installed")
 check_nmap=$(dpkg-query -W -f='${Status}' nmap 2>/dev/null | grep -c "ok installed")
-check_ncat=$(dpkg-query -W -f='${Status}' ncat 2>/dev/null | grep -c "ok installed")
+check_ncat=$(dpkg-query -W -f='${Status}' netcat-openbsd 2>/dev/null | grep -c "ok installed")
 if [[ "$check_nmap" -eq 0 || "$check_ncat" -eq 0 || "$check_curl" -eq 0 ]]; then
 	echo -e "${YELLOW}[sweep]${ENDCOLOR}: You have unmet dependencies";
 	echo -e "${YELLOW}[sweep]${ENDCOLOR}: Use flag -i for auto installation";
@@ -38,45 +38,65 @@ else
 		exit 0
 	fi
 	#----------
-	IFS='-' read -r -a port <<< "$p"
-	if [[ ! "${port[1]}" ]]; then
-		port[1]="${port[0]}"
-	else
-		if [[ "${port[0]}" -gt "${port[1]}" ]]; then
-			port_temp="${port[0]}"
-			port[0]="${port[1]}"
-			port[1]="$port_temp"
+	range=0
+	sample=0
+	IFS=',' read -r -a segment <<< "$p"
+	for section in "${segment[@]}"; do
+		IFS='-' read -r -a port <<< "$section"
+		if [[ ! "${port[1]}" ]]; then
+			port[1]="${port[0]}"
+		else
+			if [[ "${port[0]}" -gt "${port[1]}" ]]; then
+				port_temp="${port[0]}"
+				port[0]="${port[1]}"
+				port[1]="$port_temp"
+			fi
 		fi
-	fi
-	nc -zvv "$t" "${port[0]}" 2>&1 | grep "succeeded" & wait
-	duration=$SECONDS
-	range=$((${port[1]} - ${port[0]}))
+		for probe in $(seq "${port[0]}" "${port[1]}"); do
+			range=$(($range+1))
+			sample="${port[0]}"
+		done
+	done
+	nc -zvv "$t" "$sample" 2>&1 | grep "succeeded" & wait
+	duration=$SECONDS						
 	estimate=$(($duration * $range))
 	echo -e "${BLUE}[sweep]${ENDCOLOR}: Probing estimation finished in $(($estimate / 60)) minutes $((estimate % 60)) seconds ..."
-	echo -e "${BLUE}[sweep]${ENDCOLOR}: ---"
-	SECONDS=0
+	echo -e "${BLUE}[sweep]${ENDCOLOR}: ---"	
+	SECONDS=0	
 	#----------
-	for probe in $(seq "${port[0]}" "${port[1]}"); do
-		result=$(nc -zvv "$t" "$probe" 2>&1 | grep "succeeded" & wait)
-		if [[ "$result" ]]; then
-			echo -e "${GREEN}[sweep]${ENDCOLOR}: $result"
-			nmap -sS -sV "$t" -p "$probe" -T5
-			if [[ "$probe" -eq "${port[1]}" ]]; then
-				duration=$SECONDS					
-				sleep 2s & wait
-				echo -e "${BLUE}[sweep]${ENDCOLOR}: Port-Sweep done for $(($duration / 60)) minutes $((duration % 60)) seconds"
+	for range in "${segment[@]}"; do
+		IFS='-' read -r -a port <<< "$range"	
+		if [[ ! "${port[1]}" ]]; then
+			port[1]="${port[0]}"
+		else
+			if [[ "${port[0]}" -gt "${port[1]}" ]]; then
+				port_temp="${port[0]}"
+				port[0]="${port[1]}"
+				port[1]="$port_temp"
 			fi
-			continue
-		fi
-		echo -e "${YELLOW}[sweep]${ENDCOLOR}: Probing port at $probe ! ...";
-		if [[ "$probe" -eq "${port[1]}" ]]; then
-			duration=$SECONDS				
-			sleep 2s & wait
+		fi		
+		for probe in $(seq "${port[0]}" "${port[1]}"); do
+			result=$(netcat -zvv "$t" "$probe" 2>&1 | grep "succeeded" & wait)
+			if [[ "$result" ]]; then
+				echo -e "${GREEN}[sweep]${ENDCOLOR}: $result"
+				#nmap -sS -sV "$t" -p "$probe" -T5
+				if [[ "$probe" -eq "${port[1]}" && "$range" == "${segment[${#segment[@]}-1]}" ]]; then
+					duration=$SECONDS					
+					sleep 2s & wait
+					echo -e "${BLUE}[sweep]${ENDCOLOR}: Port-Sweep done for $(($duration / 60)) minutes $((duration % 60)) seconds"
+				fi
+				continue
+			fi
+			echo -e "${YELLOW}[sweep]${ENDCOLOR}: Probing port at $probe ! ...";
+			if [[ "$probe" -eq "${port[1]}" && "$range" == "${segment[${#segment[@]}-1]}" ]]; then
+				duration=$SECONDS				
+				sleep 2s & wait
+				printf "\033[2A"
+				echo -e "\n${BLUE}[sweep]${ENDCOLOR}: ---                                            "		
+				echo -e "${BLUE}[sweep]${ENDCOLOR}: Port-Sweep done for $(($duration / 60)) minutes $((duration % 60)) seconds"
+				echo ""
+			fi
 			printf "\033[A"
-			echo -e "\n${BLUE}[sweep]${ENDCOLOR}: ---"		
-			echo -e "${BLUE}[sweep]${ENDCOLOR}: Port-Sweep done for $(($duration / 60)) minutes $((duration % 60)) seconds"
-			echo ""
-		fi
-		printf "\033[A"
+		done
 	done
 fi
