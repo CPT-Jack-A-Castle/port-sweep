@@ -8,7 +8,7 @@ ENDCOLOR="\e[0m"
 #----------
 check_curl=$(dpkg-query -W -f='${Status}' curl 2>/dev/null | grep -c "ok installed")
 check_nmap=$(dpkg-query -W -f='${Status}' nmap 2>/dev/null | grep -c "ok installed")
-check_ncat=$(dpkg-query -W -f='${Status}' ncat 2>/dev/null | grep -c "ok installed")
+check_ncat=$(dpkg-query -W -f='${Status}' netcat-openbsd 2>/dev/null | grep -c "ok installed")
 #----------
 echo -e "${YELLOW}[sweep]${ENDCOLOR}: Updating Packages ...\n---"
 apt-get update -y & wait
@@ -29,16 +29,16 @@ else
 	echo -e "${YELLOW}[sweep]${ENDCOLOR}: curl have been installed ..."				
 fi
 if [[ "$check_ncat" -eq 0 ]]; then
-	echo -e "${YELLOW}[sweep]${ENDCOLOR}: Installing ncat ...\n---"		
-	apt-get install ncat -y & wait
+	echo -e "${YELLOW}[sweep]${ENDCOLOR}: Installing netcat-openbsd ...\n---"		
+	apt-get install netcat-openbsd -y & wait
 	echo "---"		
 else
-	echo -e "${YELLOW}[sweep]${ENDCOLOR}: ncat have been installed ..."				
+	echo -e "${YELLOW}[sweep]${ENDCOLOR}: netcat-openbsd have been installed ..."				
 fi
 #----------
 check_curl=$(dpkg-query -W -f='${Status}' curl 2>/dev/null | grep -c "ok installed")
 check_nmap=$(dpkg-query -W -f='${Status}' nmap 2>/dev/null | grep -c "ok installed")
-check_ncat=$(dpkg-query -W -f='${Status}' ncat 2>/dev/null | grep -c "ok installed")
+check_ncat=$(dpkg-query -W -f='${Status}' netcat-openbsd 2>/dev/null | grep -c "ok installed")
 if [[ "$check_nmap" -eq 1 && "$check_ncat" -eq 1 && "$check_curl" -eq 1 ]]; then
 	echo -e "${YELLOW}[sweep]${ENDCOLOR}: Dependencies have been met successfully"
 	exit 0						
