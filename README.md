@@ -1,2 +1,2 @@
-# crumble-attack
-crumble attack is a tool for aplication layer DDoS attack, by sending tons of crumbles HTTP request that opened via threading. It also have built-in graph to monitor the request and the host status. Adopted by SlowLoris, but the whole feature are in CLI-based  
+# port-sweep
+port-sweep is a small CLI-based tools to do port scanning and vulnerability assessment at a time. It integrates netcat and Nmap Scripting Engine, in order to find the best possible & suitable outcome for the exploit phase
