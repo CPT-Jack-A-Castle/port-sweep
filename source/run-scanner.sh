@@ -11,9 +11,10 @@ p="$2"
 o="$3"
 #----------
 trapexit() {
-	duration=$SECONDS		
+	end=$(date +%s%N | cut -b1-13)		
+	duration=$(($end-$start))			
 	printf "\r\n${RED}[sweep]${ENDCOLOR}: ---"
-	printf "\n${RED}[sweep]${ENDCOLOR}: Port-Sweep cancelled for $(($duration / 60)) minutes $((duration % 60)) seconds"	
+	printf "\n${RED}[sweep]${ENDCOLOR}: Port-Sweep cancelled for $(bc <<< "scale=3; $duration/60000") minutes"	
 	echo ""
 	exit 0
 }
@@ -29,7 +30,6 @@ if [[ "$check_nmap" -eq 0 || "$check_ncat" -eq 0 || "$check_curl" -eq 0 ]]; then
 else
 	#----------
 	datetime=$(date +"%d/%m/%y %T")
-	SECONDS=0
 	echo -e "${BLUE}[sweep]${ENDCOLOR}: Starting Port-Sweep 2.12 at $datetime ..."
 	#----------
 	check_host=$(curl -I "$t" 2>&1 | grep "Failed")
@@ -57,12 +57,13 @@ else
 			sample="${port[0]}"
 		done
 	done
+	start=$(date +%s%N | cut -b1-13)		
 	nc -zvv "$t" "$sample" 2>&1 | grep "succeeded" & wait
-	duration=$SECONDS						
-	estimate=$(($duration * $range))
-	echo -e "${BLUE}[sweep]${ENDCOLOR}: Probing estimation finished in $(($estimate / 60)) minutes $((estimate % 60)) seconds ..."
+	end=$(date +%s%N | cut -b1-13)		
+	duration=$(($end-$start))				
+	echo -e "${BLUE}[sweep]${ENDCOLOR}: Probing estimation for each port is roughly $(bc <<< "scale=5; $duration/60000") minutes ..."
 	echo -e "${BLUE}[sweep]${ENDCOLOR}: ---"	
-	SECONDS=0	
+	start=$(date +%s%N | cut -b1-13)
 	#----------
 	for range in "${segment[@]}"; do
 		IFS='-' read -r -a port <<< "$range"	
@@ -81,22 +82,35 @@ else
 				echo -e "${GREEN}[sweep]${ENDCOLOR}: $result"
 				#nmap -sS -sV "$t" -p "$probe" -T5
 				if [[ "$probe" -eq "${port[1]}" && "$range" == "${segment[${#segment[@]}-1]}" ]]; then
-					duration=$SECONDS					
+					end=$(date +%s%N | cut -b1-13)		
+					duration=$(($end-$start))							
 					sleep 2s & wait
-					echo -e "${BLUE}[sweep]${ENDCOLOR}: Port-Sweep done for $(($duration / 60)) minutes $((duration % 60)) seconds"
+					echo -e "${BLUE}[sweep]${ENDCOLOR}: Port-Sweep done for $(bc <<< "scale=3; $duration/60000") minutes"
 				fi
 				continue
 			fi
 			echo -e "${YELLOW}[sweep]${ENDCOLOR}: Probing port at $probe ! ...";
 			if [[ "$probe" -eq "${port[1]}" && "$range" == "${segment[${#segment[@]}-1]}" ]]; then
-				duration=$SECONDS				
+				end=$(date +%s%N | cut -b1-13)		
+				duration=$(($end-$start))						
 				sleep 2s & wait
 				printf "\033[2A"
 				echo -e "\n${BLUE}[sweep]${ENDCOLOR}: ---                                            "		
-				echo -e "${BLUE}[sweep]${ENDCOLOR}: Port-Sweep done for $(($duration / 60)) minutes $((duration % 60)) seconds"
+				echo -e "${BLUE}[sweep]${ENDCOLOR}: Port-Sweep done for $(bc <<< "scale=3; $duration/60000") minutes"
 				echo ""
 			fi
 			printf "\033[A"
 		done
 	done
 fi
+
+: '
+test=0
+a="1-20,80,443,3306"
+IFS=',' read -r -a segment <<< "$a"
+for range in "${segment[@]}"; do
+	test=$((++test))
+	echo "$range"
+done
+echo "${segment[${#segment[@]}-1]}"
+'
