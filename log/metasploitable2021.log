@@ -1,0 +1,18 @@
+-------
+[sweep] Starting Port-Sweep 2.12 at 192.168.1.121 [07/12/21 14:40:23] ...
+[sweep] Host seems is inactive. Aborting
+-------
+[sweep] Starting Port-Sweep 2.12 at 192.168.1.12 [07/12/21 14:40:40] ...
+[sweep] Probing estimation for each port is roughly .00006 minutes ...
+::
+[sweep] Connection to 192.168.1.12 21 port [tcp/ftp] succeeded!
+[sweep] Connection to 192.168.1.12 22 port [tcp/ssh] succeeded!
+[sweep] Connection to 192.168.1.12 23 port [tcp/telnet] succeeded!
+[sweep] Connection to 192.168.1.12 25 port [tcp/smtp] succeeded!
+[sweep] Connection to 192.168.1.12 53 port [tcp/domain] succeeded!
+[sweep] Connection to 192.168.1.12 80 port [tcp/http] succeeded!
+[sweep] Connection to 192.168.1.12 3306 port [tcp/mysql] succeeded!
+[sweep] Connection to 192.168.1.12 3632 port [tcp/distcc] succeeded!
+::
+[sweep] Port-Sweep done for .088 minutes
+-------
