@@ -10,6 +10,18 @@ t="$1"
 p="$2"
 o="$3"
 #----------
+if [[ $o ]]; then 
+	IFS='.' read -r -a ext_arr <<< "$o"
+	check_ext=$(echo $o | cut -d '.' -f ${#ext_arr[@]})
+	[[ "$check_ext" != "log" ]] && o+=".log"
+	o_clean=$(echo $o | tr -d '[\!@#$%^*[]{}`~\\"]')
+	[[ $(echo $o_clean | grep "/") ]] && path_o="$o_clean" || path_o="log/$o_clean"
+	touch "$path_o"
+	[[ -s "$path_o" ]] || echo "-------" >> "$path_o"
+fi
+#----------
+# coba ngescan pakai proxychain (hide ip)
+#----------
 trapexit() {
 	end=$(date +%s%N | cut -b1-13)		
 	duration=$(($end-$start))			
@@ -30,11 +42,13 @@ if [[ "$check_nmap" -eq 0 || "$check_ncat" -eq 0 || "$check_curl" -eq 0 ]]; then
 else
 	#----------
 	datetime=$(date +"%d/%m/%y %T")
-	echo -e "${BLUE}[sweep]${ENDCOLOR}: Starting Port-Sweep 2.12 at $datetime ..."
+	echo -e "${BLUE}[sweep]${ENDCOLOR}: Starting Port-Sweep 2.12 at ${YELLOW}$t${ENDCOLOR} [$datetime] ..."
+	[[ $o ]] && echo "[sweep] Starting Port-Sweep 2.12 at $t [$datetime] ..." >> "$path_o"
 	#----------
 	check_host=$(curl -I "$t" 2>&1 | grep "Failed")
 	if [[ "$check_host" ]]; then
 		echo -e "${RED}[sweep]${ENDCOLOR}: Host seems is inactive. Aborting"	
+		[[ $o ]] && echo -e "[sweep] Host seems is inactive. Aborting\n-------" >> "$path_o"		
 		exit 0
 	fi
 	#----------
@@ -63,6 +77,7 @@ else
 	duration=$(($end-$start))				
 	echo -e "${BLUE}[sweep]${ENDCOLOR}: Probing estimation for each port is roughly $(bc <<< "scale=5; $duration/60000") minutes ..."
 	echo -e "${BLUE}[sweep]${ENDCOLOR}: ---"	
+	[[ $o ]] && echo -e "[sweep] Probing estimation for each port is roughly $(bc <<< "scale=5; $duration/60000") minutes ...\n::" >> "$path_o"
 	start=$(date +%s%N | cut -b1-13)
 	#----------
 	for range in "${segment[@]}"; do
@@ -80,12 +95,13 @@ else
 			result=$(netcat -zvv "$t" "$probe" 2>&1 | grep "succeeded" & wait)
 			if [[ "$result" ]]; then
 				echo -e "${GREEN}[sweep]${ENDCOLOR}: $result"
-				#nmap -sS -sV "$t" -p "$probe" -T5
+				[[ $o ]] && echo -e "[sweep] $result" >> "$path_o"				
 				if [[ "$probe" -eq "${port[1]}" && "$range" == "${segment[${#segment[@]}-1]}" ]]; then
-					end=$(date +%s%N | cut -b1-13)		
-					duration=$(($end-$start))							
+					end=$(date +%s%N | cut -b1-13)
+					duration=$(($end-$start))
 					sleep 2s & wait
 					echo -e "${BLUE}[sweep]${ENDCOLOR}: Port-Sweep done for $(bc <<< "scale=3; $duration/60000") minutes"
+					[[ $o ]] && echo -e "::\n[sweep] Port-Sweep done for $(bc <<< "scale=3; $duration/60000") minutes\n-------" >> "$path_o"
 				fi
 				continue
 			fi
@@ -97,6 +113,7 @@ else
 				printf "\033[2A"
 				echo -e "\n${BLUE}[sweep]${ENDCOLOR}: ---                                            "		
 				echo -e "${BLUE}[sweep]${ENDCOLOR}: Port-Sweep done for $(bc <<< "scale=3; $duration/60000") minutes"
+				[[ $o ]] && echo -e "::\n[sweep] Port-Sweep done for $(bc <<< "scale=3; $duration/60000") minutes\n-------" >> "$path_o"				
 				echo ""
 			fi
 			printf "\033[A"
