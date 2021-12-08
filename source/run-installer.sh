@@ -9,6 +9,8 @@ ENDCOLOR="\e[0m"
 check_curl=$(dpkg-query -W -f='${Status}' curl 2>/dev/null | grep -c "ok installed")
 check_nmap=$(dpkg-query -W -f='${Status}' nmap 2>/dev/null | grep -c "ok installed")
 check_ncat=$(dpkg-query -W -f='${Status}' netcat-openbsd 2>/dev/null | grep -c "ok installed")
+check_tor=$(dpkg-query -W -f='${Status}' tor 2>/dev/null | grep -c "ok installed")
+check_proxychains=$(dpkg-query -W -f='${Status}' proxychains 2>/dev/null | grep -c "ok installed")
 #----------
 echo -e "${YELLOW}[sweep]${ENDCOLOR}: Updating Packages ...\n---"
 apt-get update -y & wait
@@ -41,5 +43,17 @@ check_nmap=$(dpkg-query -W -f='${Status}' nmap 2>/dev/null | grep -c "ok install
 check_ncat=$(dpkg-query -W -f='${Status}' netcat-openbsd 2>/dev/null | grep -c "ok installed")
 if [[ "$check_nmap" -eq 1 && "$check_ncat" -eq 1 && "$check_curl" -eq 1 ]]; then
 	echo -e "${YELLOW}[sweep]${ENDCOLOR}: Dependencies have been met successfully"
+	if [[ "$check_tor" -eq 0 || "$check_proxychains" -eq 0 ]]; then
+		echo "---"				
+		echo -e "${YELLOW}[sweep]${ENDCOLOR}: Some dependencies for proxy chaining are seems to be missing ..."		
+		echo -en "${YELLOW}[sweep]${ENDCOLOR}: Do you want them to be installed and configured right now ?"; read -p " (Y/y) " opt
+		if [[ $opt == "Y" || $opt == "y" ]]; then
+			apt-get install tor proxychains -y & wait
+			sudo service tor restart -y & wait
+			sed -i '/#dynamic_chain/c\dynamic_chain' /etc/proxychains.conf 
+			sed -i '/strict_chain/c\#strict_chain' /etc/proxychains.conf
+			cp /etc/proxychains.conf /etc/proxychains.conf.sweep.lock
+		fi
+	fi
 	exit 0						
 fi
