@@ -9,6 +9,7 @@ ENDCOLOR="\e[0m"
 t="$1"
 p="$2"
 o="$3"
+c="$4"
 #----------
 if [[ $o ]]; then 
 	IFS='.' read -r -a ext_arr <<< "$o"
@@ -20,7 +21,7 @@ if [[ $o ]]; then
 	[[ -s "$path_o" ]] || echo "-------" >> "$path_o"
 fi
 #----------
-# coba ngescan pakai proxychain (hide ip)
+# cek apakah opsi c dipakai. kalo iya, update list proxy lagi
 #----------
 trapexit() {
 	end=$(date +%s%N | cut -b1-13)		
