@@ -6,7 +6,6 @@ YELLOW="\e[33m"
 BLUE="\e[36m"
 ENDCOLOR="\e[0m"
 #----------
-cur_path=$(readlink -f $0)
 check_curl=$(dpkg-query -W -f='${Status}' curl 2>/dev/null | grep -c "ok installed")
 check_nmap=$(dpkg-query -W -f='${Status}' nmap 2>/dev/null | grep -c "ok installed")
 check_ncat=$(dpkg-query -W -f='${Status}' netcat-openbsd 2>/dev/null | grep -c "ok installed")
@@ -71,8 +70,8 @@ if [[ "$check_nmap" -eq 1 && "$check_ncat" -eq 1 && "$check_curl" -eq 1 ]]; then
 			cp /etc/proxychains.conf /etc/proxychains.conf.bak			
 			sed -i '/#dynamic_chain/c\dynamic_chain' /etc/proxychains.conf 
 			sed -i '/strict_chain/c\#strict_chain' /etc/proxychains.conf
-			cp /etc/proxychains.conf $cur_path/../temp/proxychains.conf.sweep.lock
-			chmod 444 $cur_path/../temp/proxychains.conf.sweep.lock
+			cp /etc/proxychains.conf $PWD/temp/proxychains.conf.sweep.lock
+			chmod 444 $PWD/temp/proxychains.conf.sweep.lock
 			echo -e "${YELLOW}[sweep]${ENDCOLOR}: Dependencies have been met successfully"			
 		fi
 	fi
