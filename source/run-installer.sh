@@ -43,6 +43,7 @@ check_nmap=$(dpkg-query -W -f='${Status}' nmap 2>/dev/null | grep -c "ok install
 check_ncat=$(dpkg-query -W -f='${Status}' netcat-openbsd 2>/dev/null | grep -c "ok installed")
 if [[ "$check_nmap" -eq 1 && "$check_ncat" -eq 1 && "$check_curl" -eq 1 ]]; then
 	echo -e "${YELLOW}[sweep]${ENDCOLOR}: Dependencies have been met successfully"
+	: '
 	if [[ "$check_tor" -eq 0 || "$check_proxychains" -eq 0 ]]; then
 		echo "---"				
 		echo -e "${YELLOW}[sweep]${ENDCOLOR}: Some dependencies for proxy chaining are seems to be missing ..."		
@@ -64,9 +65,9 @@ if [[ "$check_nmap" -eq 1 && "$check_ncat" -eq 1 && "$check_curl" -eq 1 ]]; then
 				echo -e "${YELLOW}[sweep]${ENDCOLOR}: proxychains have been installed ..."								
 			fi
 			#----------						
-			echo -e "${YELLOW}[sweep]${ENDCOLOR}: Restarting tor service ...\n---"					
+			echo -e "${YELLOW}[sweep]${ENDCOLOR}: Restarting tor service ..."					
 			sudo service tor restart -y & wait
-			echo -e "${YELLOW}[sweep]${ENDCOLOR}: Copying config file on /etc/proxychains.conf ...\n---"
+			echo -e "${YELLOW}[sweep]${ENDCOLOR}: Copying config file on /etc/proxychains.conf ..."
 			cp /etc/proxychains.conf /etc/proxychains.conf.bak			
 			sed -i '/#dynamic_chain/c\dynamic_chain' /etc/proxychains.conf 
 			sed -i '/strict_chain/c\#strict_chain' /etc/proxychains.conf
@@ -74,6 +75,6 @@ if [[ "$check_nmap" -eq 1 && "$check_ncat" -eq 1 && "$check_curl" -eq 1 ]]; then
 			chmod 444 $PWD/temp/proxychains.conf.sweep.lock
 			echo -e "${YELLOW}[sweep]${ENDCOLOR}: Dependencies have been met successfully"			
 		fi
-	fi
+	fi '
 	exit 0						
 fi
