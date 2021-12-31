@@ -9,7 +9,7 @@ ENDCOLOR="\e[0m"
 t="$1"
 p="$2"
 o="$3"
-c="$4"
+s="$4"
 #----------
 if [[ $o ]]; then 
 	IFS='.' read -r -a ext_arr <<< "$o"
@@ -20,8 +20,20 @@ if [[ $o ]]; then
 	touch "$path_o"
 	[[ -s "$path_o" ]] || echo "-------" >> "$path_o"
 fi
+[[ "$s" ]] && opts="-zvvw $s" || opts="-zvv"
 #----------
-# cek apakah opsi c dipakai. kalo iya, update list proxy lagi
+# - cek apa ada backslash, kalau ada ambil subnet nya
+# - itung si subnet bisa nampung brapa host. 2^(32-x)
+# - cari kelipetan minimal yg sesuai. Jadiin itu range, min  dan max nya min+host
+check_subnet=$(echo "$t" | grep "/")
+if [[ "$check_subnet" ]]; then
+	subnet=$(echo "$t" | cut -d '/' -f 2)
+	host=$((2**(32-$subnet)))
+	echo $host
+	exit 0
+fi
+#----------
+# coba ngescan pakai proxychain (hide ip) :/ || futur
 #----------
 trapexit() {
 	end=$(date +%s%N | cut -b1-13)		
@@ -44,13 +56,20 @@ else
 	#----------
 	datetime=$(date +"%d/%m/%y %T")
 	echo -e "${BLUE}[sweep]${ENDCOLOR}: Starting Port-Sweep 2.12 at ${YELLOW}$t${ENDCOLOR} [$datetime] ..."
-	[[ $o ]] && echo "[sweep] Starting Port-Sweep 2.12 at $t [$datetime] ..." >> "$path_o"
+	if [[ $o ]]; then 
+		echo -e "${BLUE}[sweep]${ENDCOLOR}: Saving current result to $path_o ..."		
+		echo "[sweep] Starting Port-Sweep 2.12 at $t [$datetime] ..." >> "$path_o"
+	fi
 	#----------
-	check_host=$(curl -I "$t" 2>&1 | grep "Failed")
+	check_host=$(curl -I "$t" --max-time 3 2>&1 | grep "timed out")
 	if [[ "$check_host" ]]; then
-		echo -e "${RED}[sweep]${ENDCOLOR}: Host seems is inactive. Aborting"	
-		[[ $o ]] && echo -e "[sweep] Host seems is inactive. Aborting\n-------" >> "$path_o"		
-		exit 0
+		ping "$t" -c1 1> /dev/null 2> /dev/null
+		echo $?
+		if [[ $? -ne 0 ]]; then
+			echo -e "${RED}[sweep]${ENDCOLOR}: Host seems is inactive. Aborting"
+			[[ $o ]] && echo -e "[sweep] Host seems is inactive. Aborting\n-------" >> "$path_o"
+			exit 0
+		fi
 	fi
 	#----------
 	range=0
@@ -72,8 +91,8 @@ else
 			sample="${port[0]}"
 		done
 	done
-	start=$(date +%s%N | cut -b1-13)		
-	nc -zvv "$t" "$sample" 2>&1 | grep "succeeded" & wait
+	start=$(date +%s%N | cut -b1-13)	
+	nc "$opts" "$t" "$sample" 1> /dev/null 2> /dev/null & wait
 	end=$(date +%s%N | cut -b1-13)		
 	duration=$(($end-$start))				
 	echo -e "${BLUE}[sweep]${ENDCOLOR}: Probing estimation for each port is roughly $(bc <<< "scale=5; $duration/60000") minutes ..."
@@ -93,7 +112,7 @@ else
 			fi
 		fi		
 		for probe in $(seq "${port[0]}" "${port[1]}"); do
-			result=$(netcat -zvv "$t" "$probe" 2>&1 | grep "succeeded" & wait)
+			result=$(netcat "$opts" "$t" "$probe" 2>&1 | grep "succeeded" & wait)
 			if [[ "$result" ]]; then
 				echo -e "${GREEN}[sweep]${ENDCOLOR}: $result"
 				[[ $o ]] && echo -e "[sweep] $result" >> "$path_o"				
