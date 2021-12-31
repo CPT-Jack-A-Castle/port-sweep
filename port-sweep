@@ -7,14 +7,14 @@ BLUE="\e[36m"
 ENDCOLOR="\e[0m"
 #----------
 if [[ $UID == 0 ]]; then
-	while getopts ":t:p:o:c: :i :h" opt; do
+	while getopts ":t:p:o:s: :i :h" opt; do
 		case $opt in
 			t) t="${OPTARG}";;
 			p) p="${OPTARG}";;
 			o) o="${OPTARG}";;
 			i) bash source/run-installer.sh; exit 0;;
 			h) bash source/run-usage.sh; exit 0;;
-			c) c="${OPTARG}";;
+			s) s="${OPTARG}";;
 			*) h="active";;
 		esac
 	done
