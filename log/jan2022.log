@@ -1,0 +1,44 @@
+-------
+[sweep] Starting Port-Sweep 2.12 at 192.168.1.11 [05/01/22 20:36:47] ...
+[sweep] Probing estimation for each port is roughly .00008 minutes ...
+::
+[sweep] Connection to 192.168.1.11 80 port [tcp/http] succeeded!
+::
+[sweep] Port-Sweep done for .105 minutes
+-------
+[sweep] Starting Port-Sweep 2.12 at 192.168.1.9 [05/01/22 20:37:26] ...
+[sweep] Probing estimation for each port is roughly .00008 minutes ...
+::
+[sweep] Connection to 192.168.1.9 21 port [tcp/ftp] succeeded!
+[sweep] Connection to 192.168.1.9 80 port [tcp/http] succeeded!
+::
+[sweep] Port-Sweep done for .072 minutes
+-------
+[sweep] Starting Port-Sweep 2.12 at 192.168.1.9 [05/01/22 20:38:52] ...
+[sweep] Probing estimation for each port is roughly .00008 minutes ...
+::
+[sweep] Connection to 192.168.1.9 21 port [tcp/ftp] succeeded!
+[sweep] Connection to 192.168.1.9 80 port [tcp/http] succeeded!
+[sweep] Connection to 192.168.1.9 2223 port [tcp/*] succeeded!
+::
+[sweep] Port-Sweep done for .119 minutes
+-------
+[sweep] Starting Port-Sweep 2.12 at 192.168.1.9 [05/01/22 20:40:22] ...
+[sweep] Probing estimation for each port is roughly .00006 minutes ...
+::
+[sweep] Connection to 192.168.1.9 21 port [tcp/ftp] succeeded!
+[sweep] Connection to 192.168.1.9 22 port [tcp/ssh] succeeded!
+[sweep] Connection to 192.168.1.9 80 port [tcp/http] succeeded!
+::
+[sweep] Port-Sweep done for .141 minutes
+-------
+[sweep] Starting Port-Sweep 2.12 at 192.168.1.9 [05/01/22 20:45:03] ...
+[sweep] Probing estimation for each port is roughly .00008 minutes ...
+::
+[sweep] Connection to 192.168.1.9 21 port [tcp/ftp] succeeded!
+[sweep] Connection to 192.168.1.9 22 port [tcp/ssh] succeeded!
+[sweep] Connection to 192.168.1.9 80 port [tcp/http] succeeded!
+[sweep] Connection to 192.168.1.9 3128 port [tcp/*] succeeded!
+::
+[sweep] Port-Sweep done for .126 minutes
+-------
